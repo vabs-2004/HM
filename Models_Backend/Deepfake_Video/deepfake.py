@@ -33,7 +33,7 @@ transform = transforms.Compose([
 ])
 
 model = timm.create_model('vit_base_patch16_224', pretrained=False, num_classes=2)
-model.load_state_dict(torch.load("C:/Users/vaibh/best_vit_model.pth", map_location=device))
+model.load_state_dict(torch.load("best_vit_model.pth", map_location=device))
 model.to(device).eval().half() 
 
 # Function to detect significant scene changes
