@@ -13,34 +13,30 @@ import os
 import uvicorn
 import asyncio
 
-# Initialize FastAPI app
 app = FastAPI()
 
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow frontend to access backend
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Device configuration
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# Define image transformations (same as used during training)
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
-# Load the trained model
 model = timm.create_model('vit_base_patch16_224', pretrained=False, num_classes=2)
 model.load_state_dict(torch.load("C:/Users/vaibh/best_vit_model.pth", map_location=device))
-model.to(device).eval().half()  # Use mixed precision
+model.to(device).eval().half() 
 
-# Function to detect significant scene changes (to skip redundant frames)
+# Function to detect significant scene changes
 def is_significant_change(prev_frame, current_frame, threshold=30):
     diff = cv2.absdiff(prev_frame, current_frame)
     gray_diff = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
@@ -49,8 +45,8 @@ def is_significant_change(prev_frame, current_frame, threshold=30):
 
 # Function to process the video and classify frames
 def predict_deepfake(video_path, model, transform, device, frame_skip=5, batch_size=8):
-    cap = cv2.VideoCapture(video_path, cv2.CAP_FFMPEG)  # Use faster video decoding
-    cap.set(cv2.CAP_PROP_BUFFERSIZE, 3)  # Reduce buffering delay
+    cap = cv2.VideoCapture(video_path, cv2.CAP_FFMPEG)  # Here,I use Video Decoding
+    cap.set(cv2.CAP_PROP_BUFFERSIZE, 3)  # Here,I Reduce buffering delay
     frame_count = 0
     real_count = 0
     manipulated_count = 0
@@ -65,13 +61,13 @@ def predict_deepfake(video_path, model, transform, device, frame_skip=5, batch_s
         
         frame_count += 1
         
-        # Process key frames only (scene changes or every nth frame)
+        # Here, I process key frames only (scene changes)
         if prev_frame is None or frame_count % frame_skip == 0 or is_significant_change(prev_frame, frame):
             image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-            image = transform(image).unsqueeze(0).to(device).half()  # Convert input to FP16
+            image = transform(image).unsqueeze(0).to(device).half()  # Here, I convert input to FP16
             batch.append(image)
 
-            # Process batch when it reaches batch_size
+            # Here, I process batch when it reaches batch_size
             if len(batch) == batch_size:
                 batch_tensor = torch.cat(batch, dim=0)
                 with torch.no_grad():
@@ -80,9 +76,9 @@ def predict_deepfake(video_path, model, transform, device, frame_skip=5, batch_s
                 predictions.extend(predicted)
                 batch = []
         
-        prev_frame = frame  # Store previous frame for scene change detection
+        prev_frame = frame  # Here, i store previous frame for scene change detection
 
-    # Process remaining frames in batch
+    # Here, i process remaining frames in batch
     if batch:
         batch_tensor = torch.cat(batch, dim=0)
         with torch.no_grad():
@@ -91,32 +87,29 @@ def predict_deepfake(video_path, model, transform, device, frame_skip=5, batch_s
         predictions.extend(predicted)
 
     cap.release()
-    os.remove(video_path)  # Remove temp file
+    os.remove(video_path)  # Here, I remove temp file
 
     # Count real vs manipulated frames
     real_count = predictions.count(0)
     manipulated_count = predictions.count(1)
-
-    # Final decision based on majority vote
     result = "Real" if real_count > manipulated_count else "Manipulated"
     return {"result": result, "real_frames": real_count, "manipulated_frames": manipulated_count}
 
-# Asynchronous file deletion to avoid blocking response time
+#Asynchronous file deletion to avoid blocking response time
 async def delete_temp_file(path):
-    await asyncio.sleep(1)  # Ensure file is not in use before deletion
+    await asyncio.sleep(1)  #Ensure file is not in use before deletion
     os.remove(path)
 
-# FastAPI endpoint for video upload and processing
 @app.post("/predict")
 async def predict_deepfake_api(file: UploadFile = File(...)):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video:
         shutil.copyfileobj(file.file, temp_video)
         temp_video_path = temp_video.name
     
-    # Run video processing in a background thread
+    #video processing in a background thread
     result = await asyncio.to_thread(predict_deepfake, temp_video_path, model, transform, device)
 
-    # Delete temp file asynchronously
+    #Delete temp file asynchronously
     asyncio.create_task(delete_temp_file(temp_video_path))
 
     return result
