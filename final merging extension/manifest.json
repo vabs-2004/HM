@@ -1,0 +1,15 @@
+{
+    "name": "Truth Shiel 3.0",
+    "version": "0.0.1",
+    "manifest_version": 3,
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": "logo.png"
+    },
+    "background": {
+      "service_worker": "background.js"
+    },
+    "icons": {
+        "128": "logo.png"
+    }
+}

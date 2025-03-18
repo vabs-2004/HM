@@ -1,0 +1,131 @@
+/* General body styling for extension popup */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #ffffff;
+    color: #333;
+    margin: 0;
+    padding: 15px;
+    width: 300px; /* Fixed width for extension popup */
+    box-sizing: border-box;
+}
+
+/* Heading styling */
+h2 {
+    color: #444;
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    text-align: center;
+}
+
+#fileInput{
+    margin-bottom: 10px;
+}
+
+#extractButtonimage,#extractButtontext {
+    width: 100%;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-bottom: 15px;
+}
+
+/* Text input styling */
+.text-input {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    outline: none;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+.text-input:focus {
+    border-color: #007bff;
+}
+
+#loader1,#loader2 {
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #3498db;
+    border-radius: 50%;
+    height: 100%;
+    text-align: center;
+    animation: spin 2s linear infinite;
+    right: 6px;
+    position: relative;
+    transform: translate(-50%, -50%);
+    display: none; /* Initially hidden */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+#extracted-text1,#extracted-text2 {
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 100%;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 14px;
+    line-height: 1.4;
+    box-sizing: border-box;
+    text-align: center;
+    color: #555;
+}
+
+/* Button styling */
+#extractButton {
+    width: 100%;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-bottom: 15px;
+}
+
+#extractButton:hover {
+    background-color: #0056b3;
+}
+
+/* Extracted text styling */
+#extracted-text {
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 100%;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 14px;
+    line-height: 1.4;
+    box-sizing: border-box;
+    text-align: center;
+    color: #555;
+}
+
+/* Loading or result state styling */
+#extracted-text.loading {
+    color: #007bff;
+    font-style: italic;
+}
+
+#extracted-text.error {
+    color: #ff4d4d;
+    font-weight: bold;
+}
